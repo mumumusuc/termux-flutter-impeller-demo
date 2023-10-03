@@ -1,14 +1,18 @@
-FLUTTER_BIN := $(dir $(shell which flutter))
-FLUTTER_SDK := $(FLUTTER_BIN)cache/artifacts/engine/linux-arm64/
+FLUTTER_BIN := $(shell which flutter 2>/dev/null)
+FLUTTER_SDK := $(dir $(FLUTTER_BIN))cache/artifacts/engine/linux-arm64/
+
+ifndef FLUTTER_BIN
+    $(error `flutter` not found)
+endif
 
 .PHONY: all
-all: glutter flutter
+all: glutter bundle
 
 glutter: src/glutter.c src/flutter_embedder.h
 	@$(CC) -o $@ $< -L$(FLUTTER_SDK) -lglfw -lflutter_engine -Wl,-rpath=$(FLUTTER_SDK)
 
-.PHONY: flutter
-flutter:
+.PHONY: bundle
+bundle: 
 	@flutter build bundle
 
 .PHONY: run
@@ -19,4 +23,3 @@ run: all
 clean:
 	-@rm glutter
 	-@flutter clean
-
